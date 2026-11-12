@@ -48,7 +48,7 @@ Open `http://localhost:3000`. Without Supabase variables the app deliberately st
 
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # Comma-separated, verified official domains only. Never invent a domain.
@@ -60,7 +60,7 @@ NIAT_ALLOWED_EMAIL_DOMAINS=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-The anon key is designed for browser use and is constrained by RLS. The service-role key must never use a `NEXT_PUBLIC_` prefix and should not be added unless an operational script genuinely needs it.
+The publishable key is designed for browser use and is constrained by RLS. A legacy anon key remains supported as an optional compatibility fallback. The service-role key must never use a `NEXT_PUBLIC_` prefix and should not be added unless an operational script genuinely needs it.
 
 ## 3. Supabase database setup
 
@@ -79,6 +79,7 @@ Run these files in order:
 2. `supabase/migrations/002_security_and_collaboration.sql`
 3. `supabase/migrations/003_simple_posting.sql`
 4. `supabase/migrations/004_public_problem_comments.sql`
+5. `supabase/migrations/005_storage_buckets_and_realtime.sql`
 
 The migrations create:
 
@@ -88,8 +89,8 @@ The migrations create:
 - Secure RPCs for idea/comment/solution votes, accepted solutions, competition advancement, winner selection, role changes and project application review.
 - Trigger-derived contribution points and achievement awards.
 - Notification triggers for discussion, accepted solutions, project activity and competitions.
-- A private `attachments` Storage bucket with 5 MB MIME restrictions and signed reads.
-- Realtime publication only for comments, notifications and project updates.
+- A compatibility `attachments` bucket plus dedicated `avatars`, `idea-attachments`, `problem-attachments`, and `project-assets` buckets with ownership, membership, MIME, and size restrictions.
+- Selective Realtime publication for comments, notifications, project activity, vote updates, and competition changes.
 
 ### Auth URL configuration
 
