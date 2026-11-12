@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NXTGENCODERS logo">
+  <rect width="512" height="512" rx="92" fill="#09090B"/>
+  <path d="M140 104h276l-36 304H104z" fill="#8B5CF6" opacity=".95"/>
+  <path d="M112 80h276l-36 304H76z" fill="#B6FF3B"/>
+  <path d="M270 118 154 270h79l-28 126 142-180h-88z" fill="#09090B" stroke="#09090B" stroke-linejoin="round" stroke-width="8"/>
+  <path d="M84 431h344" stroke="#B6FF3B" stroke-width="16"/>
+</svg>
