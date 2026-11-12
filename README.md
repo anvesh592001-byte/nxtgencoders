@@ -80,6 +80,9 @@ Run these files in order:
 3. `supabase/migrations/003_simple_posting.sql`
 4. `supabase/migrations/004_public_problem_comments.sql`
 5. `supabase/migrations/005_storage_buckets_and_realtime.sql`
+6. `supabase/migrations/006_fix_project_rls_recursion.sql`
+7. `supabase/migrations/007_registration_hardening_and_ordering.sql`
+8. `supabase/migrations/008_function_lint_cleanup.sql`
 
 The migrations create:
 
@@ -119,8 +122,9 @@ After that, use `/admin` for approvals and role management. Role changes are ser
 
 ## 5. Registration policy
 
-- If `NIAT_ALLOWED_EMAIL_DOMAINS` contains verified domains, signup accepts only those domains and verified accounts are approved.
-- If it is blank, signup still requires email verification, but new profiles remain `pending` until an admin approves them.
+- If `NIAT_ALLOWED_EMAIL_DOMAINS` contains verified domains, the server action rejects other signup addresses.
+- Database auto-approval is separately controlled by `public.allowed_registration_domains`; add only institution-confirmed domains there as an administrator. This prevents clients from forging an approval metadata flag.
+- If both configurations are blank, signup still requires email verification and new profiles remain `pending` until an admin approves them.
 - No NIAT domain is assumed or hardcoded.
 
 ## 6. Security model
