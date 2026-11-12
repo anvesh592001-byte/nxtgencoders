@@ -1,0 +1,1 @@
+export function ErrorNote({message}:{message?:string}){if(!message)return null;return <div role="alert" className="mb-5 border border-red-500/50 bg-red-500/10 px-4 py-3 text-sm text-red-300">{message}</div>}
