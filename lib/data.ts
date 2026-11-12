@@ -9,7 +9,11 @@ export type Project = {id:string;title:string;slug:string;description:string;ima
 
 export async function getViewer(){const s=await createClient();if(!s)return null;const {data:{user}}=await s.auth.getUser();return user;}
 export async function getStats(){
- const s=await createClient(); if(!s)return {students:0,ideas:0,problems:0,projects:0,contributors:0};
+ const s=await createClient();if(!s)return {students:0,ideas:0,problems:0,projects:0,contributors:0};
+ const {data:aggregate,error}=await s.rpc("get_community_stats");
+ const row=Array.isArray(aggregate)?aggregate[0]:aggregate;
+ if(!error&&row)return {students:Number(row.students||0),ideas:Number(row.ideas||0),problems:Number(row.problems||0),projects:Number(row.projects||0),contributors:Number(row.contributors||0)};
+ // Compatibility fallback while migration 009 is being rolled out.
  const [students,ideas,problems,projects,contributors]=await Promise.all([
   s.from("profiles").select("id",{count:"exact",head:true}).eq("approval_status","approved"),s.from("ideas").select("id",{count:"exact",head:true}),
   s.from("problems").select("id",{count:"exact",head:true}),s.from("projects").select("id",{count:"exact",head:true}),

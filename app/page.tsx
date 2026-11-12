@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 
+export const dynamic="force-dynamic";
+
 export default async function Home(){
  const {stats,ideas,problems,competition,top3,projects}=await getHomeData();
  const metrics=[["Registered students",stats.students,Users],["Ideas shared",stats.ideas,Lightbulb],["Problems posted",stats.problems,BookOpen],["Projects built",stats.projects,Blocks],["Active contributors",stats.contributors,Sparkles]] as const;

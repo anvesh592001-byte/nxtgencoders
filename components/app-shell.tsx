@@ -21,7 +21,8 @@ const nav = [
 function Brand(){return <Link href="/" className="group flex items-center gap-3"><span className="flex h-9 w-9 -skew-x-6 items-center justify-center bg-lime text-ink transition-transform group-hover:skew-x-0"><Zap size={20} fill="currentColor"/></span><span><b className="block font-display text-sm font-black tracking-tight">NXTGEN<span className="text-purple">CODERS</span></b><i className="block font-mono text-[7px] not-italic tracking-[.22em] text-zinc-500">THINK · SHARE · BUILD</i></span></Link>}
 
 export function AppShell({ children, user }: { children:React.ReactNode; user?:ShellUser|null }) {
- const pathname=usePathname(); const router=useRouter(); const [menu,setMenu]=useState(false); const [post,setPost]=useState(false); const isAuth=["/login","/signup","/forgot-password"].some(x=>pathname.startsWith(x));
+ const pathname=usePathname(); const router=useRouter(); const [menu,setMenu]=useState(false); const [post,setPost]=useState(false); const isAuth=["/login","/signup","/forgot-password","/check-email"].some(x=>pathname.startsWith(x));
+ const accountNotice=user?.approvalStatus==="pending"?"Your email is verified and you are signed in. An administrator must approve your student profile before you can post, vote, or comment.":user?.approvalStatus==="suspended"?"This account is suspended. Contact an administrator if you believe this is a mistake.":user?.approvalStatus==="rejected"?"This registration was not approved. Contact an administrator for help.":null;
  const submitSearch=(e:React.FormEvent<HTMLFormElement>)=>{e.preventDefault();const q=new FormData(e.currentTarget).get("q"); if(q) router.push(`/search?q=${encodeURIComponent(String(q))}`)};
  if(isAuth) return <>{children}</>;
  return <div className="pc-shell doodle-bg min-h-screen bg-ink">
@@ -42,6 +43,7 @@ export function AppShell({ children, user }: { children:React.ReactNode; user?:S
     <div className="hidden sm:block"><AccountMenu user={user}/></div>
     <Button onClick={()=>setPost(true)} size="sm" aria-label="Post something"><Plus size={14}/><span className="hidden sm:inline">Post something</span><ChevronDown className="hidden sm:block" size={13}/></Button>
    </header>
+   {accountNotice&&<div role="status" className="border-b border-amber-400/30 bg-amber-400/10 px-5 py-3 text-xs leading-5 text-amber-200 sm:px-8"><b className="mr-2 font-mono text-[9px] uppercase tracking-wider">Account status //</b>{accountNotice}</div>}
    <main className="pc-main doodle-canvas min-h-[calc(100vh-4rem)] pb-20 lg:pb-0">{children}</main>
   </div>
   <nav className="fixed inset-x-0 bottom-0 z-30 flex h-16 items-center justify-around border-t border-zinc-800 bg-zinc-950 lg:hidden">{nav.slice(0,5).map(([label,href,Icon])=><a key={href} href={href} aria-label={label} className={`p-3 ${pathname===href||href!=="/"&&pathname.startsWith(href)?"text-lime":"text-zinc-600"}`}><Icon size={20}/></a>)}</nav>
