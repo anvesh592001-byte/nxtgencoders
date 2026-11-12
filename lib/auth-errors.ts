@@ -14,13 +14,10 @@ export function authErrorMessage(error: AuthFailure | null | undefined, flow: Au
   const code = authErrorCode(error);
 
   if (code === "email_not_confirmed") {
-    return "Your email is not verified yet. Open the verification link in your inbox or request a new one below.";
+    return "This older account is still marked unconfirmed. Ask an administrator to activate it.";
   }
-  if (code === "over_email_send_rate_limit") {
-    return "Too many verification emails were requested. Please wait before trying again and use the newest link already in your inbox.";
-  }
-  if (code === "email_address_not_authorized") {
-    return "Email delivery is not configured for public registrations yet. Please contact the NXTGENCODERS administrator.";
+  if (code === "over_email_send_rate_limit" || code === "email_address_not_authorized") {
+    return "Email delivery is disabled. Ask a NXTGENCODERS administrator for account help.";
   }
   if (code === "over_request_rate_limit") {
     return "Too many attempts were made. Please wait a few minutes and try again.";
