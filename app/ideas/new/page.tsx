@@ -20,7 +20,7 @@ export default async function NewIdea({searchParams}:{searchParams:Promise<{erro
    </form>
    <aside className="h-fit border border-purple/50 bg-deep p-5 lg:sticky lg:top-24">
     <Lightbulb className="text-lime"/>
-    <h2 className="mt-4 font-display text-xl font-black uppercase">That's it.</h2>
+    <h2 className="mt-4 font-display text-xl font-black uppercase">That&apos;s it.</h2>
     <p className="mt-2 text-sm leading-6 text-zinc-500">A good heading and a simple explanation are enough. People can ask questions and help improve it in the comments.</p>
    </aside>
   </div>

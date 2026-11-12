@@ -40,8 +40,8 @@ export function AppearanceControls({ className="" }:{className?:string}) {
   const initialMode:Mode=isMode(savedMode)?savedMode:root.dataset.mode==="light"?"light":root.dataset.mode==="dark"?"dark":matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
   const initialAccent:Accent=isAccent(savedAccent)?savedAccent:root.dataset.accent==="ocean"?"ocean":root.dataset.accent==="sunset"?"sunset":"neon";
   setDocumentAppearance(initialMode,initialAccent);
-  setMode(initialMode);
-  setAccent(initialAccent);
+  const frame=requestAnimationFrame(()=>{setMode(initialMode);setAccent(initialAccent)});
+  return()=>cancelAnimationFrame(frame);
  },[]);
 
  useEffect(()=>{

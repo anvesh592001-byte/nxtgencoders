@@ -1,0 +1,1 @@
+export function SectionHeader({eyebrow,title,description}:{eyebrow:string;title:string;description:string}){return <div className="smooth-enter max-w-3xl"><p className="eyebrow">{eyebrow}</p><h1 className="display-title mt-4 text-4xl sm:text-6xl">{title}</h1><p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">{description}</p></div>}

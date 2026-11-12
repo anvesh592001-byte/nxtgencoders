@@ -1,2 +1,20 @@
-import Link from "next/link";import { ArrowRight } from "lucide-react";import { AuthFrame } from "@/components/auth-frame";import { Button } from "@/components/ui/button";import { ErrorNote } from "@/components/error-note";import { signIn } from "@/app/actions";
-export default async function Login({searchParams}:{searchParams:Promise<{error?:string;message?:string}>}){const p=await searchParams;return <AuthFrame eyebrow="Student access // 01" title="Welcome back, builder." description="Sign in to vote, discuss, collaborate, and ship." foot={<>New to the network? <Link href="/signup" className="font-bold text-lime">Create an account</Link></>}><ErrorNote message={p.error}/>{p.message&&<div className="mb-5 border border-lime/40 bg-lime/10 p-3 text-sm text-lime">{p.message}</div>}<form action={signIn} className="space-y-5"><label><span className="label">Email address</span><input className="field" type="email" name="email" autoComplete="email" required placeholder="you@example.edu"/></label><label><span className="label">Password</span><input className="field" type="password" name="password" autoComplete="current-password" required minLength={8}/></label><div className="flex justify-end"><Link href="/forgot-password" className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-500 hover:text-purple">Forgot password?</Link></div><Button type="submit" className="w-full">Enter the network<ArrowRight size={15}/></Button></form></AuthFrame>}
+import Link from "next/link";
+import { CheckCircle2, KeyRound, ShieldCheck } from "lucide-react";
+import { AuthFrame } from "@/components/auth-frame";
+import { ErrorNote } from "@/components/error-note";
+import { LoginForm } from "@/components/login-form";
+
+export const metadata={title:"Sign In"};
+
+export default async function Login({searchParams}:{searchParams:Promise<{error?:string;message?:string;next?:string}>}){
+ const p=await searchParams;
+ return <AuthFrame eyebrow="Student access // Secure session" title="Welcome back, builder." description="Continue your ideas, discussions, projects, and community work." foot={<>New to the network? <Link href="/signup" className="font-bold text-lime transition hover:text-purple">Create an account</Link></>}>
+  <div className="auth-card border border-zinc-800 bg-zinc-950 p-5 sm:p-6">
+   <div className="mb-5 flex items-start gap-3 border-b border-zinc-800 pb-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center bg-deep text-purple"><KeyRound size={19}/></span><div><h2 className="font-display text-lg font-black uppercase">Verified access</h2><p className="mt-1 text-xs leading-5 text-zinc-500">Your session is protected by Supabase Auth and secure server cookies.</p></div></div>
+   <ErrorNote message={p.error}/>
+   {p.message&&<div role="status" className="mb-5 flex gap-2 border border-lime/40 bg-lime/10 p-3 text-sm text-lime"><CheckCircle2 className="mt-0.5 shrink-0" size={16}/><span>{p.message}</span></div>}
+   <LoginForm next={p.next}/>
+   <div className="mt-4 flex items-center justify-between gap-3"><span className="flex items-center gap-1.5 font-mono text-[8px] uppercase text-zinc-600"><ShieldCheck size={12}/>Encrypted session</span><Link href="/forgot-password" className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-500 transition hover:text-purple">Forgot password?</Link></div>
+  </div>
+ </AuthFrame>;
+}
