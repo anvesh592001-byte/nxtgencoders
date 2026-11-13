@@ -304,6 +304,34 @@ html[data-mode] .profile-trigger { background-color:var(--surface) !important; b
 @keyframes smooth-enter { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 @keyframes auth-reveal { from { opacity:0; transform:translateX(-14px); } to { opacity:1; transform:translateX(0); } }
 
+/* Lightweight CSS replacements for framer-motion micro-animations. */
+@keyframes toast-in { from { opacity:0; transform:translateY(16px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes toast-out { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform:translateY(10px) scale(.98); } }
+@keyframes pop-in { 0% { transform:scale(.4); } 60% { transform:scale(1.18); } 100% { transform:scale(1); } }
+@keyframes heart-pop { 0% { transform:scale(.55) rotate(-8deg); } 60% { transform:scale(1.12) rotate(2deg); } 100% { transform:scale(1) rotate(0); } }
+@keyframes fade-in { from { opacity:0; } to { opacity:1; } }
+@keyframes fade-out { from { opacity:1; } to { opacity:0; } }
+@keyframes sheet-up { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@keyframes sheet-down { from { transform:translateY(0); } to { transform:translateY(100%); } }
+@keyframes dialog-in { from { opacity:0; transform:translateY(8px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes rise-in { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes count-tick { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slide-in-left { from { transform:translateX(-100%); } to { transform:translateX(0); } }
+@keyframes slide-out-left { from { transform:translateX(0); } to { transform:translateX(-100%); } }
+.animate-toast-in { animation:toast-in .25s ease-out both; }
+.animate-toast-out { animation:toast-out .2s ease-in both; }
+.animate-pop-in { animation:pop-in .38s cubic-bezier(.34,1.56,.64,1) both; }
+.animate-heart-pop { animation:heart-pop .32s cubic-bezier(.34,1.56,.64,1) both; }
+.animate-fade-in { animation:fade-in .2s ease-out both; }
+.animate-fade-out { animation:fade-out .2s ease-in both; }
+.animate-sheet-up { animation:sheet-up .34s cubic-bezier(.32,.72,.28,1) both; }
+.animate-sheet-down { animation:sheet-down .26s cubic-bezier(.5,0,.75,0) both; }
+.animate-dialog-in { animation:dialog-in .2s ease-out both; }
+.animate-rise-in { animation:rise-in .22s ease-out both; }
+.animate-count-tick { animation:count-tick .16s ease-out both; }
+.animate-slide-in-left { animation:slide-in-left .32s cubic-bezier(.22,1,.36,1) both; }
+.animate-slide-out-left { animation:slide-out-left .26s cubic-bezier(.5,0,.75,0) both; }
+
 @media (prefers-reduced-motion:reduce) {
-  .smooth-enter, .auth-visual { animation:none !important; }
+  .smooth-enter, .auth-visual, .animate-toast-in, .animate-toast-out, .animate-pop-in, .animate-heart-pop, .animate-fade-in, .animate-fade-out, .animate-sheet-up, .animate-sheet-down, .animate-dialog-in, .animate-rise-in, .animate-count-tick, .animate-slide-in-left, .animate-slide-out-left { animation:none !important; }
 }

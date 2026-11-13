@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
 import {
   Heart,
   LoaderCircle,
@@ -52,6 +51,7 @@ export function IdeaComments({
   ideaTitle: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [sheetClosing, setSheetClosing] = useState(false);
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -67,6 +67,7 @@ export function IdeaComments({
   const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const sheetTimer = useRef<number | null>(null);
 
   // Keep the live count in sync with server values delivered by realtime refresh.
   const [prevInitialCount, setPrevInitialCount] = useState(initialCount);
@@ -84,6 +85,13 @@ export function IdeaComments({
       document.body.style.overflow = prev;
     };
   }, [open]);
+
+  useEffect(
+    () => () => {
+      if (sheetTimer.current) window.clearTimeout(sheetTimer.current);
+    },
+    []
+  );
 
   const fetchComments = useCallback(async () => {
     const supabase = createClient();
@@ -103,12 +111,19 @@ export function IdeaComments({
 
   function toggleOpen() {
     const next = !open;
+    if (sheetTimer.current) window.clearTimeout(sheetTimer.current);
+    setSheetClosing(false);
     setOpen(next);
     if (next && !loaded) void fetchComments();
   }
 
   function close() {
-    setOpen(false);
+    // Play the sheet exit animation, then unmount.
+    setSheetClosing(true);
+    sheetTimer.current = window.setTimeout(() => {
+      setOpen(false);
+      setSheetClosing(false);
+    }, 260);
     setReplyTo(null);
     setEditingId(null);
     setError(null);
@@ -441,47 +456,35 @@ export function IdeaComments({
         {count} {count === 1 ? "comment" : "comments"}
       </button>
 
-      {/* Desktop: inline expandable panel (wraps full-width below the action row) */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="order-last hidden basis-full overflow-hidden border-t border-zinc-800 sm:block"
-          >
-            <div className="max-h-96">{panel}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Desktop: inline expandable panel (grid-rows height animation) */}
+      <div
+        className={`order-last hidden basis-full grid transition-all duration-200 ease-out sm:block ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden border-t border-zinc-800">
+          <div className="max-h-96">{panel}</div>
+        </div>
+      </div>
 
       {/* Mobile: bottom sheet */}
       {mounted &&
+        open &&
         createPortal(
-          <AnimatePresence>
-            {open && (
-              <div className="fixed inset-0 z-[90] sm:hidden">
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onClick={close}
-                  className="absolute inset-0 bg-black/70"
-                />
-                <motion.div
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{ y: "100%" }}
-                  transition={{ type: "spring", stiffness: 320, damping: 32 }}
-                  className="absolute inset-x-0 bottom-0 flex max-h-[82vh] flex-col border-t border-zinc-700 bg-zinc-950"
-                >
-                  <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-zinc-700" />
-                  {panel}
-                </motion.div>
-              </div>
-            )}
-          </AnimatePresence>,
+          <div className="fixed inset-0 z-[90] sm:hidden">
+            <div
+              onClick={close}
+              className={`absolute inset-0 bg-black/70 ${sheetClosing ? "animate-fade-out" : "animate-fade-in"}`}
+            />
+            <div
+              className={`absolute inset-x-0 bottom-0 flex max-h-[82vh] flex-col border-t border-zinc-700 bg-zinc-950 ${
+                sheetClosing ? "animate-sheet-down" : "animate-sheet-up"
+              }`}
+            >
+              <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-zinc-700" />
+              {panel}
+            </div>
+          </div>,
           document.body
         )}
     </>

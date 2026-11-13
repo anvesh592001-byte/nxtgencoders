@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, LoaderCircle, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
 import { deleteIdea, updateIdea } from "@/app/actions";
 import { showToast } from "@/components/toast-host";
@@ -32,8 +31,45 @@ export function IdeaOwnerControls({
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuClosing, setMenuClosing] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [editClosing, setEditClosing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteClosing, setDeleteClosing] = useState(false);
+  const menuTimer = useRef<number | null>(null);
+  const editTimer = useRef<number | null>(null);
+  const deleteTimer = useRef<number | null>(null);
+
+  function closeMenu() {
+    setMenuClosing(true);
+    menuTimer.current = window.setTimeout(() => {
+      setMenuOpen(false);
+      setMenuClosing(false);
+    }, 140);
+  }
+  function closeEdit() {
+    setEditClosing(true);
+    editTimer.current = window.setTimeout(() => {
+      setEditing(false);
+      setEditClosing(false);
+    }, 200);
+  }
+  function closeDelete() {
+    setDeleteClosing(true);
+    deleteTimer.current = window.setTimeout(() => {
+      setConfirmingDelete(false);
+      setDeleteClosing(false);
+    }, 200);
+  }
+
+  useEffect(
+    () => () => {
+      if (menuTimer.current) window.clearTimeout(menuTimer.current);
+      if (editTimer.current) window.clearTimeout(editTimer.current);
+      if (deleteTimer.current) window.clearTimeout(deleteTimer.current);
+    },
+    []
+  );
   const [title, setTitle] = useState(idea.title);
   const [body, setBody] = useState(idea.detailed_explanation || idea.short_description || "");
   const [pending, setPending] = useState(false);
@@ -43,7 +79,7 @@ export function IdeaOwnerControls({
   useEffect(() => {
     function closeOnOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
+        closeMenu();
       }
     }
     document.addEventListener("mousedown", closeOnOutside);
@@ -70,9 +106,9 @@ export function IdeaOwnerControls({
     document.body.style.overflow = "hidden";
     function onKey(event: KeyboardEvent) {
       if (event.key === "Escape" && !pending && !deleting) {
-        setEditing(false);
-        setConfirmingDelete(false);
-        setMenuOpen(false);
+        closeEdit();
+        closeDelete();
+        closeMenu();
       }
     }
     document.addEventListener("keydown", onKey);
@@ -103,8 +139,8 @@ export function IdeaOwnerControls({
       formData.set("idea", body.trim());
       const result = await updateIdea(formData);
       if (!result.ok) throw new Error(result.error || "Update failed. Please try again.");
-      setEditing(false);
-      setMenuOpen(false);
+      closeEdit();
+      closeMenu();
       showToast("Updated successfully");
       markManualRefresh();
       router.refresh();
@@ -124,8 +160,8 @@ export function IdeaOwnerControls({
       formData.set("idea_id", idea.id);
       const result = await deleteIdea(formData);
       if (!result.ok) throw new Error(result.error || "Delete failed. Please try again.");
-      setConfirmingDelete(false);
-      setMenuOpen(false);
+      closeDelete();
+      closeMenu();
       showToast("Post deleted successfully");
       markManualRefresh();
       if (redirectAfterDelete) {
@@ -158,61 +194,54 @@ export function IdeaOwnerControls({
         >
           <MoreHorizontal size={16} />
         </button>
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              role="menu"
-              initial={{ opacity: 0, y: -4, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -4, scale: 0.98 }}
-              transition={{ duration: 0.14 }}
-              className="absolute right-0 z-40 mt-2 w-44 border border-zinc-700 bg-zinc-950 p-1 shadow-2xl"
+        {menuOpen && (
+          <div
+            role="menu"
+            className={`absolute right-0 z-40 mt-2 w-44 border border-zinc-700 bg-zinc-950 p-1 shadow-2xl ${
+              menuClosing ? "animate-fade-out" : "animate-dialog-in"
+            }`}
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                setError(null);
+                setEditing(true);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-300 hover:bg-zinc-900 hover:text-white"
             >
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setError(null);
-                  setEditing(true);
-                }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-300 hover:bg-zinc-900 hover:text-white"
-              >
-                <Pencil size={13} /> Edit Post
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setError(null);
-                  setConfirmingDelete(true);
-                }}
-                className="flex w-full items-center gap-2 px-3 py-2 text-left font-mono text-[10px] font-bold uppercase tracking-wider text-red-300 hover:bg-red-400/10"
-              >
-                <Trash2 size={13} /> Delete Post
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <Pencil size={13} /> Edit Post
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                closeMenu();
+                setError(null);
+                setConfirmingDelete(true);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-2 text-left font-mono text-[10px] font-bold uppercase tracking-wider text-red-300 hover:bg-red-400/10"
+            >
+              <Trash2 size={13} /> Delete Post
+            </button>
+          </div>
+        )}
       </div>
 
-      <AnimatePresence>
-        {editing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 p-4"
-            onClick={() => !pending && setEditing(false)}
+      {editing && (
+        <div
+          className={`fixed inset-0 z-[110] flex items-center justify-center bg-black/80 p-4 ${
+            editClosing ? "animate-fade-out" : "animate-fade-in"
+          }`}
+          onClick={() => !pending && closeEdit()}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className={`comic-panel w-full max-w-xl bg-zinc-950 p-5 sm:p-6 ${
+              editClosing ? "animate-fade-out" : "animate-dialog-in"
+            }`}
           >
-            <motion.div
-              initial={{ scale: 0.96, y: 14 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.97, y: 8 }}
-              onClick={(event) => event.stopPropagation()}
-              className="comic-panel w-full max-w-xl bg-zinc-950 p-5 sm:p-6"
-            >
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <p className="eyebrow">Edit post</p>
@@ -220,7 +249,7 @@ export function IdeaOwnerControls({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setEditing(false)}
+                  onClick={closeEdit}
                   disabled={pending}
                   aria-label="Close editor"
                   className="p-2 text-zinc-500 hover:text-white disabled:opacity-50"
@@ -259,7 +288,7 @@ export function IdeaOwnerControls({
               <div className="mt-6 flex flex-wrap justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setEditing(false)}
+                  onClick={closeEdit}
                   disabled={pending}
                   className="border border-zinc-700 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-300 hover:border-white disabled:opacity-50"
                 >
@@ -275,27 +304,23 @@ export function IdeaOwnerControls({
                   {pending ? "Saving…" : "Save changes"}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
-      <AnimatePresence>
-        {confirmingDelete && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 p-4"
-            onClick={() => !pending && !deleting && setConfirmingDelete(false)}
+      {confirmingDelete && (
+        <div
+          className={`fixed inset-0 z-[110] flex items-center justify-center bg-black/80 p-4 ${
+            deleteClosing ? "animate-fade-out" : "animate-fade-in"
+          }`}
+          onClick={() => !pending && !deleting && closeDelete()}
+        >
+          <div
+            onClick={(event) => event.stopPropagation()}
+            className={`comic-panel w-full max-w-md bg-zinc-950 p-6 ${
+              deleteClosing ? "animate-fade-out" : "animate-dialog-in"
+            }`}
           >
-            <motion.div
-              initial={{ scale: 0.96, y: 14 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.97, y: 8 }}
-              onClick={(event) => event.stopPropagation()}
-              className="comic-panel w-full max-w-md bg-zinc-950 p-6"
-            >
               <div className="flex items-start gap-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center border border-red-400/60 bg-red-400/10 text-red-300">
                   <Trash2 size={18} />
@@ -315,7 +340,7 @@ export function IdeaOwnerControls({
               <div className="mt-6 flex justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setConfirmingDelete(false)}
+                  onClick={closeDelete}
                   disabled={pending || deleting}
                   className="border border-zinc-700 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-300 hover:border-white disabled:opacity-50"
                 >
@@ -331,10 +356,9 @@ export function IdeaOwnerControls({
                   {deleting ? "Deleting…" : "Delete"}
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Heart, LoaderCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -82,27 +81,16 @@ export function LikeButton({
             : "border-zinc-800 text-zinc-500 hover:border-red-400/60 hover:text-red-300"
         }`}
       >
-        <motion.span
-          key={liked ? "liked" : "unliked"}
-          initial={{ scale: 0.55, rotate: -8 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 520, damping: 18 }}
-          className="inline-flex"
-        >
+        <span key={liked ? "liked" : "unliked"} className="animate-heart-pop inline-flex">
           {pending ? (
             <LoaderCircle size={14} className="animate-spin" />
           ) : (
             <Heart size={14} fill={liked ? "currentColor" : "none"} />
           )}
-        </motion.span>
-        <motion.span
-          key={count}
-          initial={{ y: 4, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.16 }}
-        >
+        </span>
+        <span key={count} className="animate-count-tick inline-block">
           {count}
-        </motion.span>
+        </span>
         <span className="hidden sm:inline">{liked ? "Liked" : "Like"}</span>
       </button>
       {error && (
