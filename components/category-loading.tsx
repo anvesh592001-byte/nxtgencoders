@@ -1,0 +1,6 @@
+export function CategoryLoading(){
+ return <div aria-busy="true" aria-label="Loading page" className="min-h-[calc(100vh-4rem)] bg-zinc-950">
+  <section className="border-b border-zinc-800 bg-deep"><div className="container-site py-12 sm:py-16"><div className="h-2.5 w-40 animate-pulse bg-purple/30"/><div className="mt-5 h-11 w-full max-w-2xl animate-pulse bg-zinc-800 sm:h-14"/><div className="mt-4 h-3 w-full max-w-lg animate-pulse bg-zinc-800"/></div></section>
+  <div className="container-site py-9"><div className="mb-7 grid grid-cols-3 border border-zinc-800 bg-zinc-950">{Array.from({length:3},(_,index)=><div key={index} className="border-r border-zinc-800 p-5 last:border-r-0"><div className="mb-4 h-4 w-4 animate-pulse bg-purple/30"/><div className="h-8 w-14 animate-pulse bg-zinc-800"/><div className="mt-2 h-2 w-20 animate-pulse bg-zinc-800"/></div>)}</div><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{Array.from({length:6},(_,index)=><div key={index} className="editorial-card p-5"><div className="mb-7 h-5 w-3/4 animate-pulse bg-zinc-800"/><div className="mb-2 h-3 animate-pulse bg-zinc-800"/><div className="h-3 w-4/5 animate-pulse bg-zinc-800"/></div>)}</div></div>
+ </div>;
+}

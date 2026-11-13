@@ -1,1 +1,3 @@
-export default function Loading(){return <main className="min-h-[calc(100vh-4rem)] bg-zinc-950" aria-busy="true" aria-label="Loading page"><div className="container-site py-14"><div className="mb-10 h-3 w-36 animate-pulse bg-purple/30"/><div className="mb-4 h-12 w-full max-w-xl animate-pulse bg-zinc-800"/><div className="mb-12 h-4 w-full max-w-md animate-pulse bg-zinc-800"/><div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{Array.from({length:6},(_,index)=><div key={index} className="editorial-card p-5"><div className="mb-6 h-5 w-3/4 animate-pulse bg-zinc-800"/><div className="mb-2 h-3 animate-pulse bg-zinc-800"/><div className="h-3 w-4/5 animate-pulse bg-zinc-800"/></div>)}</div></div></main>}
+import { CategoryLoading } from "@/components/category-loading";
+
+export default function Loading(){return <CategoryLoading/>}
