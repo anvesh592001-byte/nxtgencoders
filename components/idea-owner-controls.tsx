@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, LoaderCircle, MoreHorizontal, Pencil, Trash2, X } from "lucide-react";
 import { deleteIdea, updateIdea } from "@/app/actions";
+import { showToast } from "@/components/toast-host";
+import { markManualRefresh } from "@/components/realtime-refresh";
 
 type IdeaForControls = {
   id: string;
@@ -18,10 +20,14 @@ export function IdeaOwnerControls({
   idea,
   canManage,
   redirectAfterDelete = false,
+  onDeleted,
 }: {
   idea: IdeaForControls;
   canManage: boolean;
   redirectAfterDelete?: boolean;
+  /** Called after a successful delete so the parent card can animate out
+   *  before the list refreshes (prevents an abrupt jump/flicker). */
+  onDeleted?: () => void;
 }) {
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -31,14 +37,8 @@ export function IdeaOwnerControls({
   const [title, setTitle] = useState(idea.title);
   const [body, setBody] = useState(idea.detailed_explanation || idea.short_description || "");
   const [pending, setPending] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 5000);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
 
   useEffect(() => {
     function closeOnOutside(event: MouseEvent) {
@@ -49,6 +49,25 @@ export function IdeaOwnerControls({
     document.addEventListener("mousedown", closeOnOutside);
     return () => document.removeEventListener("mousedown", closeOnOutside);
   }, []);
+
+  // Lock background scroll and allow Escape while a dialog is open.
+  useEffect(() => {
+    if (!editing && !confirmingDelete) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape" && !pending && !deleting) {
+        setEditing(false);
+        setConfirmingDelete(false);
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [editing, confirmingDelete, pending, deleting]);
 
   if (!canManage) return null;
 
@@ -73,7 +92,8 @@ export function IdeaOwnerControls({
       if (!result.ok) throw new Error(result.error || "Update failed. Please try again.");
       setEditing(false);
       setMenuOpen(false);
-      setToast("Updated successfully");
+      showToast("Updated successfully");
+      markManualRefresh();
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Update failed. Please try again.");
@@ -83,9 +103,9 @@ export function IdeaOwnerControls({
   }
 
   async function confirmDelete() {
-    if (pending) return;
+    if (pending || deleting) return;
     setError(null);
-    setPending(true);
+    setDeleting(true);
     try {
       const formData = new FormData();
       formData.set("idea_id", idea.id);
@@ -93,16 +113,22 @@ export function IdeaOwnerControls({
       if (!result.ok) throw new Error(result.error || "Delete failed. Please try again.");
       setConfirmingDelete(false);
       setMenuOpen(false);
-      setToast("Post deleted successfully");
+      showToast("Post deleted successfully");
+      markManualRefresh();
       if (redirectAfterDelete) {
+        // Detail page: navigate straight away. A refresh here would re-render
+        // the deleted page and flash a 404 before the navigation lands.
         router.push("/explore");
+      } else if (onDeleted) {
+        // Feed card: let the card animate out, then refresh once.
+        onDeleted();
       } else {
         router.refresh();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Delete failed. Please try again.");
     } finally {
-      setPending(false);
+      setDeleting(false);
     }
   }
 
@@ -248,7 +274,7 @@ export function IdeaOwnerControls({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 p-4"
-            onClick={() => !pending && setConfirmingDelete(false)}
+            onClick={() => !pending && !deleting && setConfirmingDelete(false)}
           >
             <motion.div
               initial={{ scale: 0.96, y: 14 }}
@@ -277,7 +303,7 @@ export function IdeaOwnerControls({
                 <button
                   type="button"
                   onClick={() => setConfirmingDelete(false)}
-                  disabled={pending}
+                  disabled={pending || deleting}
                   className="border border-zinc-700 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-zinc-300 hover:border-white disabled:opacity-50"
                 >
                   Cancel
@@ -285,39 +311,14 @@ export function IdeaOwnerControls({
                 <button
                   type="button"
                   onClick={confirmDelete}
-                  disabled={pending}
+                  disabled={pending || deleting}
                   className="inline-flex items-center gap-2 bg-red-500 px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-wider text-white disabled:cursor-wait disabled:opacity-70"
                 >
-                  {pending ? <LoaderCircle size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                  {pending ? "Deleting…" : "Delete"}
+                  {deleting ? <LoaderCircle size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  {deleting ? "Deleting…" : "Delete"}
                 </button>
               </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            role="status"
-            initial={{ opacity: 0, y: 16, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            className="fixed bottom-5 right-5 z-[120] flex max-w-sm items-start gap-3 border border-lime/60 bg-zinc-950 p-4 shadow-2xl"
-          >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-lime text-ink">
-              <Check size={17} strokeWidth={3} />
-            </span>
-            <p className="pt-1 text-sm font-semibold leading-6 text-white">{toast}</p>
-            <button
-              type="button"
-              onClick={() => setToast(null)}
-              aria-label="Dismiss notification"
-              className="ml-auto p-1 text-zinc-500 hover:text-white"
-            >
-              <X size={15} />
-            </button>
           </motion.div>
         )}
       </AnimatePresence>

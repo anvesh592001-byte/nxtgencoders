@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppShell } from "@/components/app-shell";
 import { SetupBanner } from "@/components/setup-banner";
 import { PwaRegistration } from "@/components/pwa-registration";
+import { ToastHost } from "@/components/toast-host";
 import { createClient } from "@/lib/supabase/server";
 
 const inter=Inter({subsets:["latin"],variable:"--font-inter"});
@@ -15,5 +16,5 @@ export const viewport:Viewport={width:"device-width",initialScale:1,maximumScale
 export default async function RootLayout({children}:{children:React.ReactNode}){
  const supabase=await createClient(); let userProfile=null;
  if(supabase){const {data:{user}}=await supabase.auth.getUser();if(user){const {data}=await supabase.from("profiles").select("display_name,username,role,approval_status,contribution_points,avatar_url").eq("id",user.id).maybeSingle();userProfile=data?{name:data.display_name,username:data.username,role:data.role,approvalStatus:data.approval_status,contributionPoints:data.contribution_points,avatarUrl:data.avatar_url}:null;}}
- return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><body className={`${inter.variable} ${space.variable} ${mono.variable} font-sans antialiased`}><PwaRegistration/><SetupBanner/><AppShell user={userProfile}>{children}</AppShell></body></html>;
+ return <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning><body className={`${inter.variable} ${space.variable} ${mono.variable} font-sans antialiased`}><PwaRegistration/><SetupBanner/><AppShell user={userProfile}>{children}</AppShell><ToastHost/></body></html>;
 }

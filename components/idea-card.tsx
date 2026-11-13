@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowBigUp, MessageSquare, MoveUpRight } from "lucide-react";
 import type { Idea } from "@/lib/data";
@@ -7,10 +11,20 @@ import { LikeButton } from "./like-button";
 import { IdeaOwnerControls } from "./idea-owner-controls";
 
 export function IdeaCard({idea,index,featured=false}:{idea:Idea;index?:number;featured?:boolean}){
- return <article className={`editorial-shadow group relative overflow-hidden border bg-zinc-950 transition-all hover:-translate-y-1 hover:border-purple ${featured?"border-purple/70":"border-zinc-800"}`}>
+ const router=useRouter();
+ const [deleted,setDeleted]=useState(false);
+ const timer=useRef<number|null>(null);
+ useEffect(()=>()=>{if(timer.current)window.clearTimeout(timer.current)},[]);
+ // Animate the card out smoothly, then refresh the list once. Refreshing
+ // immediately made the card vanish abruptly and the grid jump (the "glitch").
+ function handleDeleted(){
+  setDeleted(true);
+  timer.current=window.setTimeout(()=>router.refresh(),340);
+ }
+ return <article aria-hidden={deleted||undefined} className={`editorial-shadow group relative overflow-hidden border bg-zinc-950 transition-all duration-300 hover:-translate-y-1 hover:border-purple ${featured?"border-purple/70":"border-zinc-800"} ${deleted?"pointer-events-none translate-y-2 scale-[.97] opacity-0":""}`}>
   {typeof index==="number"&&<div className="absolute right-3 top-1 font-display text-6xl font-black text-white/[.04]">{String(index).padStart(2,"0")}</div>}
   <div className="p-5 sm:p-6">
-   <div className="mb-5 flex items-center gap-2"><Avatar name={idea.author_name} url={idea.avatar_url} size="sm"/><div><Link href={`/profile/${idea.author_username}`} className="block text-[11px] font-bold hover:text-lime">{idea.author_name}</Link><span className="font-mono text-[8px] uppercase text-zinc-600">{timeAgo(idea.created_at)}</span></div><div className="ml-auto"><IdeaOwnerControls idea={idea} canManage={Boolean(idea.can_manage)}/></div></div>
+   <div className="mb-5 flex items-center gap-2"><Avatar name={idea.author_name} url={idea.avatar_url} size="sm"/><div><Link href={`/profile/${idea.author_username}`} className="block text-[11px] font-bold hover:text-lime">{idea.author_name}</Link><span className="font-mono text-[8px] uppercase text-zinc-600">{timeAgo(idea.created_at)}</span></div><div className="ml-auto"><IdeaOwnerControls idea={idea} canManage={Boolean(idea.can_manage)} onDeleted={handleDeleted}/></div></div>
    <Link href={`/ideas/${idea.id}`}><h3 className="font-display text-xl font-black leading-tight tracking-tight transition group-hover:text-lavender sm:text-2xl">{idea.title}</h3></Link>
    <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-sm leading-6 text-zinc-500">{idea.short_description}</p>
   </div>

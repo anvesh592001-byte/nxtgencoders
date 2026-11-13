@@ -20,7 +20,7 @@ export default async function IdeaDetail({params,searchParams}:{params:Promise<{
  const idea:any=await getIdea(id);
  if(!idea)notFound();
  return <>
-  <RealtimeRefresh tables={[{table:"idea_comments",filter:`idea_id=eq.${id}`},{table:"idea_likes",filter:`idea_id=eq.${id}`},{table:"ideas",filter:`id=eq.${id}`}]}/>
+  <RealtimeRefresh tables={[{table:"idea_comments",filter:`idea_id=eq.${id}`},{table:"idea_likes",filter:`idea_id=eq.${id}`},{table:"ideas",filter:`id=eq.${id}`}] } onDeleteNavigate="/explore"/>
   {sp.posted==="1"&&<SuccessToast message="Your idea has been posted successfully!"/>}
   <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
    <ErrorNote message={sp.error}/>
