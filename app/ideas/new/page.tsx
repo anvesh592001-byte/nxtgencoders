@@ -1,8 +1,9 @@
-import { ArrowRight, Lightbulb } from "lucide-react";
+import { Lightbulb } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
-import { Button } from "@/components/ui/button";
 import { ErrorNote } from "@/components/error-note";
 import { createIdea } from "@/app/actions";
+import { ClientRequestId } from "@/components/client-request-id";
+import { FormSubmitButton } from "@/components/form-submit-button";
 
 export const metadata={title:"Share an Idea"};
 
@@ -13,10 +14,11 @@ export default async function NewIdea({searchParams}:{searchParams:Promise<{erro
   <div className="mx-auto grid max-w-4xl gap-6 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_240px]">
    <form action={createIdea} className="panel space-y-6 p-5 sm:p-8">
     <ErrorNote message={p.error}/>
+    <ClientRequestId/>
     {p.remix&&<input type="hidden" name="remix_of" value={p.remix}/>} 
     <label><span className="label">Heading</span><input name="title" required minLength={3} maxLength={120} className="field" placeholder="Give your idea a clear heading"/></label>
     <label><span className="label">Your idea</span><textarea name="idea" required minLength={10} maxLength={10000} rows={12} className="field resize-y" placeholder="Explain your idea in your own words..."/></label>
-    <Button type="submit" size="lg">Post idea<ArrowRight size={16}/></Button>
+    <FormSubmitButton label="Post idea" pendingLabel="Posting…" className="h-13 px-6 text-xs"/>
    </form>
    <aside className="h-fit border border-purple/50 bg-deep p-5 lg:sticky lg:top-24">
     <Lightbulb className="text-lime"/>

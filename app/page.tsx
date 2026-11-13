@@ -8,6 +8,7 @@ import { ProjectCard } from "@/components/project-card";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
+import { RealtimeRefresh } from "@/components/realtime-refresh";
 
 export const dynamic="force-dynamic";
 
@@ -15,6 +16,7 @@ export default async function Home(){
  const {stats,ideas,problems,competition,top3,projects}=await getHomeData();
  const metrics=[["Registered students",stats.students,Users],["Ideas shared",stats.ideas,Lightbulb],["Problems posted",stats.problems,BookOpen],["Projects built",stats.projects,Blocks],["Active contributors",stats.contributors,Sparkles]] as const;
  return <>
+  <RealtimeRefresh tables={[{table:"ideas"},{table:"idea_likes"},{table:"idea_comments"}]}/>
   <section className="doodle-bg doodle-hero grain relative overflow-hidden border-b border-zinc-800 bg-zinc-950">
    <div className="halftone absolute -right-24 top-0 h-full w-2/5 rotate-6 opacity-60"/><div className="absolute left-[62%] top-10 hidden font-display text-[18rem] font-black leading-none text-white/[.025] xl:block">NXT</div>
    <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-24 lg:py-28"><div className="mb-7 inline-flex items-center gap-3 border border-purple/40 bg-purple/10 px-3 py-2 font-mono text-[9px] font-bold uppercase tracking-[.18em] text-lavender"><span className="h-2 w-2 animate-blink bg-lime"/>NIAT innovation network // Live</div>
