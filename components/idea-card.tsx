@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowBigUp, MessageSquare, MoveUpRight } from "lucide-react";
+import { ArrowBigUp, MoveUpRight } from "lucide-react";
 import type { Idea } from "@/lib/data";
 import { Avatar } from "./ui/avatar";
 import { timeAgo } from "@/lib/utils";
 import { LikeButton } from "./like-button";
 import { IdeaOwnerControls } from "./idea-owner-controls";
+import { IdeaComments } from "./idea-comments";
 
 export function IdeaCard({idea,index,featured=false}:{idea:Idea;index?:number;featured?:boolean}){
  const router=useRouter();
@@ -28,6 +29,6 @@ export function IdeaCard({idea,index,featured=false}:{idea:Idea;index?:number;fe
    <Link href={`/ideas/${idea.id}`}><h3 className="font-display text-xl font-black leading-tight tracking-tight transition group-hover:text-lavender sm:text-2xl">{idea.title}</h3></Link>
    <p className="mt-3 line-clamp-4 whitespace-pre-wrap text-sm leading-6 text-zinc-500">{idea.short_description}</p>
   </div>
-  <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800 px-3 py-2.5"><div className="flex items-center gap-1 border-r border-zinc-800 pr-3 font-mono text-xs font-bold text-lime"><ArrowBigUp size={16}/>{idea.vote_score||0}</div><LikeButton ideaId={idea.id} initialCount={idea.like_count||0} initialLiked={Boolean(idea.viewer_liked)}/><div className="flex items-center gap-1 px-2 font-mono text-[10px] text-zinc-500"><MessageSquare size={14}/>{idea.comment_count||0} comments</div><Link aria-label={`View ${idea.title} and comments`} href={`/ideas/${idea.id}`} className="ml-auto border border-zinc-800 p-2 text-zinc-500 transition hover:border-purple hover:text-white"><MoveUpRight size={14}/></Link></div>
+  <div className="flex flex-wrap items-center gap-2 border-t border-zinc-800 px-3 py-2.5"><div className="flex items-center gap-1 border-r border-zinc-800 pr-3 font-mono text-xs font-bold text-lime"><ArrowBigUp size={16}/>{idea.vote_score||0}</div><LikeButton ideaId={idea.id} initialCount={idea.like_count||0} initialLiked={Boolean(idea.viewer_liked)}/><IdeaComments ideaId={idea.id} initialCount={idea.comment_count||0} viewerId={idea.viewer_id||null} ideaTitle={idea.title}/><Link aria-label={`View ${idea.title} and comments`} href={`/ideas/${idea.id}`} className="ml-auto border border-zinc-800 p-2 text-zinc-500 transition hover:border-purple hover:text-white"><MoveUpRight size={14}/></Link></div>
  </article>;
 }
