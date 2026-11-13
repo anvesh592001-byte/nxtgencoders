@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { addComment, castCommentVote, deleteComment, editComment, reportContent } from "@/app/actions";
 import { Avatar } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -16,7 +17,7 @@ export function CommentThread({comments,ideaId,viewerId,parent=null,depth=0}:{co
     <div className="flex items-start gap-3">
      <Avatar name={c.author?.display_name} url={c.author?.avatar_url} size="sm"/>
      <div className="min-w-0 flex-1">
-      <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-300"><a href={`/profile/${c.author?.username}`} className="mr-2 font-bold text-white hover:text-purple">{c.author?.username}</a>{c.body}</p>
+      <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-300"><Link href={`/profile/${c.author?.username}`} className="mr-2 font-bold text-white hover:text-purple">{c.author?.username}</Link>{c.body}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3 font-mono text-[8px] font-bold uppercase text-zinc-600">
        <span>{timeAgo(c.created_at)}</span>{likes>0&&<span>{likes} {likes===1?"like":"likes"}</span>}
        <details><summary className="cursor-pointer list-none hover:text-purple"><MessageCircle className="mr-1 inline" size={11}/>Reply</summary><form action={addComment} className="mt-3 flex max-w-lg gap-2"><input type="hidden" name="idea_id" value={ideaId}/><input type="hidden" name="parent_id" value={c.id}/><ClientRequestId/><input name="body" required minLength={2} maxLength={5000} className="field" placeholder={`Reply to @${c.author?.username}`}/><Button type="submit" size="sm">Post</Button></form></details>

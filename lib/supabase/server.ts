@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { supabaseConfigured } from "./config";
 
 export async function createClient() {
@@ -19,3 +20,15 @@ export async function createClient() {
     }
   );
 }
+
+/**
+ * Current user, deduplicated per request. Layout and data helpers each used
+ * to call auth.getUser() separately (2-3 network round trips per page load);
+ * React cache() collapses them into a single call.
+ */
+export const getServerUser = cache(async () => {
+  const s = await createClient();
+  if (!s) return null;
+  const { data: { user } } = await s.auth.getUser();
+  return user;
+});

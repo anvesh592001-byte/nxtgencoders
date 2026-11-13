@@ -21,6 +21,18 @@ export function LikeButton({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Stay in sync when a realtime refresh delivers fresh server values
+  // (otherwise counts/like state go stale after other users act).
+  // Render-time adjustment is React's recommended pattern for prop sync.
+  const [prevInitialLiked, setPrevInitialLiked] = useState(initialLiked);
+  const [prevInitialCount, setPrevInitialCount] = useState(initialCount);
+  if (!pending && (initialLiked !== prevInitialLiked || initialCount !== prevInitialCount)) {
+    setPrevInitialLiked(initialLiked);
+    setPrevInitialCount(initialCount);
+    setLiked(initialLiked);
+    setCount(initialCount);
+  }
+
   async function toggleLike() {
     if (pending) return;
     const previousLiked = liked;

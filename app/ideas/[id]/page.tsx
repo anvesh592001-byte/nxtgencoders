@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowBigDown, ArrowBigUp, Bookmark, Calendar, Flag, GitFork, MessageSquare } from "lucide-react";
 import { getIdea } from "@/lib/data";
@@ -34,7 +35,7 @@ export default async function IdeaDetail({params,searchParams}:{params:Promise<{
     <main className="min-w-0">
      <article className="border border-zinc-800 bg-zinc-950 p-6 sm:p-9">
       <div className="flex items-start justify-between gap-4"><h1 className="font-display text-4xl font-black leading-[.95] tracking-[-.045em] sm:text-6xl">{idea.title}</h1><IdeaOwnerControls idea={idea} canManage={Boolean(idea.canManage)} redirectAfterDelete/></div>
-      <div className="mt-6 flex flex-wrap items-center gap-5 border-y border-zinc-800 py-4"><div className="flex items-center gap-3"><Avatar name={idea.author_name} url={idea.avatar_url}/><div><a href={`/profile/${idea.author_username}`} className="text-xs font-bold hover:text-lime">{idea.author_name}</a><p className="font-mono text-[8px] uppercase text-zinc-600">@{idea.author_username}</p></div></div><span className="flex items-center gap-1 font-mono text-[9px] uppercase text-zinc-600"><Calendar size={13}/>{formatDate(idea.created_at)}</span><span className="flex items-center gap-1 font-mono text-[9px] uppercase text-zinc-600"><MessageSquare size={13}/>{idea.comment_count||0} comments</span><span className="font-mono text-[9px] uppercase text-zinc-600">{idea.like_count||0} likes</span></div>
+      <div className="mt-6 flex flex-wrap items-center gap-5 border-y border-zinc-800 py-4"><div className="flex items-center gap-3"><Avatar name={idea.author_name} url={idea.avatar_url}/><div><Link href={`/profile/${idea.author_username}`} className="text-xs font-bold hover:text-lime">{idea.author_name}</Link><p className="font-mono text-[8px] uppercase text-zinc-600">@{idea.author_username}</p></div></div><span className="flex items-center gap-1 font-mono text-[9px] uppercase text-zinc-600"><Calendar size={13}/>{formatDate(idea.created_at)}</span><span className="flex items-center gap-1 font-mono text-[9px] uppercase text-zinc-600"><MessageSquare size={13}/>{idea.comment_count||0} comments</span><span className="font-mono text-[9px] uppercase text-zinc-600">{idea.like_count||0} likes</span></div>
       <p className="mt-8 whitespace-pre-wrap text-base leading-8 text-zinc-300">{idea.detailed_explanation}</p>
      </article>
      <section id="comments" className="mt-8">

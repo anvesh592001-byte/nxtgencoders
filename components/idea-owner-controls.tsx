@@ -50,6 +50,19 @@ export function IdeaOwnerControls({
     return () => document.removeEventListener("mousedown", closeOnOutside);
   }, []);
 
+  // Keep the editor fields in sync when the idea changes (e.g. after an
+  // edit + refresh), without clobbering text while the editor is open.
+  // Render-time adjustment is React's recommended pattern for prop sync.
+  const [prevIdeaTitle, setPrevIdeaTitle] = useState(idea.title);
+  const [prevIdeaBody, setPrevIdeaBody] = useState(idea.detailed_explanation || idea.short_description || "");
+  const nextIdeaBody = idea.detailed_explanation || idea.short_description || "";
+  if (!editing && (idea.title !== prevIdeaTitle || nextIdeaBody !== prevIdeaBody)) {
+    setPrevIdeaTitle(idea.title);
+    setPrevIdeaBody(nextIdeaBody);
+    setTitle(idea.title);
+    setBody(nextIdeaBody);
+  }
+
   // Lock background scroll and allow Escape while a dialog is open.
   useEffect(() => {
     if (!editing && !confirmingDelete) return;
