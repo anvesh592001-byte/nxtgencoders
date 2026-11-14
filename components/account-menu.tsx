@@ -134,7 +134,7 @@ export function AccountMenu({ user }: { user?: ShellUser | null }) {
               <div className="space-y-1 py-2">
                 <MenuLink href="/profile/me" icon={<UserRound size={15} />} label="View profile" />
                 <MenuLink href="/settings" icon={<Settings size={15} />} label="Profile settings" />
-                {user.role === "admin" && <MenuLink href="/admin" icon={<ShieldCheck size={15} />} label="Admin console" />}
+                {(user.role === "admin" || user.role === "chief") && <MenuLink href="/admin" icon={<ShieldCheck size={15} />} label={"Chief's console"} />}
               </div>
               <form action={signOut} className="border-t border-zinc-800 pt-2">
                 <button role="menuitem" className="flex w-full items-center gap-3 px-3 py-2.5 font-mono text-[9px] font-bold uppercase text-zinc-500 hover:bg-zinc-900 hover:text-white"><LogOut size={15} />Sign out</button>
