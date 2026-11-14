@@ -55,7 +55,7 @@ export async function getProblem(id:string){
  if(!problem.data)return null;
  const {data:full}=await s.from("problems").select("*").eq("id",id).single();
  const {data:{user}}=await s.auth.getUser();let role=null;if(user){const {data:p}=await s.from("profiles").select("role").eq("id",user.id).maybeSingle();role=p?.role;}
- return {...problem.data,...full,solutions:solutions.data||[],volunteers:volunteers.data||[],comments:comments.data||[],viewerId:user?.id||null,canAccept:Boolean(user&&(user.id===problem.data.author_id||role==="admin"||role==="moderator"))};
+ return {...problem.data,...full,solutions:solutions.data||[],volunteers:volunteers.data||[],comments:comments.data||[],viewerId:user?.id||null,canAccept:Boolean(user&&(user.id===problem.data.author_id||role==="admin"||role==="moderator")),canDelete:Boolean(user&&(user.id===problem.data.author_id||role==="admin"))};
 }
 export async function getProjects(limit=30){const s=await createClient();if(!s)return [] as Project[];const {data}=await s.from("project_feed").select("*").order("created_at",{ascending:false}).limit(limit);return (data||[]) as Project[];}
 export async function getProject(id:string){
