@@ -3,6 +3,7 @@ import { CalendarDays, Camera, CheckCircle2, KeyRound, LogOut, Mail, ShieldCheck
 import { createClient } from "@/lib/supabase/server";
 import { signOut, updateAvatar, updatePassword, updateProfile } from "@/app/actions";
 import { Avatar } from "@/components/ui/avatar";
+import { RemoveAvatarButton } from "@/components/remove-avatar";
 import { Button } from "@/components/ui/button";
 import { ErrorNote } from "@/components/error-note";
 import { FormSubmitButton } from "@/components/form-submit-button";
@@ -20,6 +21,7 @@ export default async function Settings({searchParams}:{searchParams:Promise<{err
     <aside className="space-y-5">
      <div className="editorial-card p-6"><div className="flex items-center gap-4"><Avatar name={profile.display_name} url={profile.avatar_url} size="lg"/><div className="min-w-0"><h2 className="truncate font-display text-xl font-black uppercase">{profile.display_name}</h2><p className="font-mono text-[9px] text-zinc-500">@{profile.username}</p></div></div>
       <form action={updateAvatar} className="mt-5 space-y-3"><label className="block cursor-pointer border border-dashed border-zinc-700 p-3 text-center transition hover:border-purple"><Camera className="mx-auto mb-1 text-purple" size={17}/><span className="font-mono text-[8px] font-bold uppercase text-zinc-400">Choose a profile image</span><input className="sr-only" name="avatar" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required/></label><p className="text-center font-mono text-[7px] uppercase text-zinc-600">JPG, PNG, WebP or AVIF · Max 2 MB</p><FormSubmitButton label="Upload image" pendingLabel="Uploading…" className="w-full"/></form>
+      {profile.avatar_url&&<div className="mt-3"><RemoveAvatarButton/></div>}
      </div>
      <div className="editorial-card divide-y divide-zinc-800 p-1"><Detail icon={<Mail/>} label="Email" value={user.email||"—"}/><Detail icon={<UserRound/>} label="Section" value={profile.section||"Not assigned"}/><Detail icon={<ShieldCheck/>} label="Access" value={profile.approval_status}/><Detail icon={<Sparkles/>} label="Contribution points" value={String(profile.contribution_points||0)}/><Detail icon={<CalendarDays/>} label="Member since" value={joined}/></div>
     </aside>
