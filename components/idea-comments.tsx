@@ -283,11 +283,7 @@ export function IdeaComments({
             <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[9px] font-bold uppercase text-zinc-600">
               <span>{timeAgo(c.created_at)}</span>
               {c.edited_at && <span>edited</span>}
-              {likes > 0 && (
-                <span className={liked ? "text-red-400" : ""}>
-                  {likes} {likes === 1 ? "like" : "likes"}
-                </span>
-              )}
+
               {!isEditing && viewerId && (
                 <button
                   type="button"
@@ -351,19 +347,26 @@ export function IdeaComments({
               </form>
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => void toggleLike(c)}
-            aria-label={liked ? "Unlike comment" : "Like comment"}
-            aria-pressed={liked}
-            className={`shrink-0 p-1.5 transition hover:scale-110 ${
-              liked ? "text-red-500" : "text-zinc-600 hover:text-red-500"
-            }`}
-          >
-            <span key={liked ? "liked" : "unliked"} className="animate-heart-pop inline-flex">
-              <Heart size={15} fill={liked ? "currentColor" : "none"} />
-            </span>
-          </button>
+          <span className="inline-flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={() => void toggleLike(c)}
+              aria-label={liked ? "Unlike comment" : "Like comment"}
+              aria-pressed={liked}
+              className={`p-1.5 transition hover:scale-110 ${
+                liked ? "text-red-500" : "text-zinc-600 hover:text-red-500"
+              }`}
+            >
+              <span key={liked ? "liked" : "unliked"} className="animate-heart-pop inline-flex">
+                <Heart size={15} fill={liked ? "currentColor" : "none"} />
+              </span>
+            </button>
+            {likes > 0 && (
+              <span key={likes} className="animate-count-tick font-mono text-[10px] font-bold text-zinc-500">
+                {likes}
+              </span>
+            )}
+          </span>
         </div>
         {children.map((child) => renderComment(child, depth + 1))}
       </div>
