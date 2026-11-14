@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { addComment, castCommentVote, deleteComment, editComment, reportContent } from "@/app/actions";
+import { addComment, deleteComment, editComment, reportContent } from "@/app/actions";
+import { CommentLikeButton } from "./comment-like-button";
 import { Avatar } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { timeAgo } from "@/lib/utils";
-import { Flag, Heart, MessageCircle, Trash2 } from "lucide-react";
+import { Flag, MessageCircle, Trash2 } from "lucide-react";
 import { ClientRequestId } from "./client-request-id";
 
 export function CommentThread({comments,ideaId,viewerId,parent=null,depth=0}:{comments:any[];ideaId:string;viewerId?:string|null;parent?:string|null;depth?:number}){
@@ -19,13 +20,13 @@ export function CommentThread({comments,ideaId,viewerId,parent=null,depth=0}:{co
      <div className="min-w-0 flex-1">
       <p className="whitespace-pre-wrap text-sm leading-6 text-zinc-300"><Link href={`/profile/${c.author?.username}`} className="mr-2 font-bold text-white hover:text-purple">{c.author?.username}</Link>{c.body}</p>
       <div className="mt-2 flex flex-wrap items-center gap-3 font-mono text-[8px] font-bold uppercase text-zinc-600">
-       <span>{timeAgo(c.created_at)}</span>{likes>0&&<span>{likes} {likes===1?"like":"likes"}</span>}
+       <span>{timeAgo(c.created_at)}</span>
        <details><summary className="cursor-pointer list-none hover:text-purple"><MessageCircle className="mr-1 inline" size={11}/>Reply</summary><form action={addComment} className="mt-3 flex max-w-lg gap-2"><input type="hidden" name="idea_id" value={ideaId}/><input type="hidden" name="parent_id" value={c.id}/><ClientRequestId/><input name="body" required minLength={2} maxLength={5000} className="field" placeholder={`Reply to @${c.author?.username}`}/><Button type="submit" size="sm">Post</Button></form></details>
        <form action={reportContent}><input type="hidden" name="content_type" value="idea_comment"/><input type="hidden" name="content_id" value={c.id}/><button className="hover:text-red-400"><Flag className="mr-1 inline" size={10}/>Report</button></form>
        {viewerId===c.author_id&&<><details><summary className="cursor-pointer list-none hover:text-purple">Edit</summary><form action={editComment} className="mt-3 flex max-w-lg gap-2"><input type="hidden" name="comment_id" value={c.id}/><input type="hidden" name="idea_id" value={ideaId}/><input name="body" defaultValue={c.body} className="field"/><Button size="sm">Save</Button></form></details><form action={deleteComment}><input type="hidden" name="comment_id" value={c.id}/><input type="hidden" name="idea_id" value={ideaId}/><button aria-label="Delete your comment" className="hover:text-red-400"><Trash2 className="mr-1 inline" size={10}/>Delete</button></form></>}
       </div>
      </div>
-     <form action={castCommentVote}><input type="hidden" name="idea_id" value={ideaId}/><input type="hidden" name="comment_id" value={c.id}/><button aria-label={liked?"Unlike comment":"Like comment"} className={`p-2 transition hover:scale-110 ${liked?"text-red-500":"text-zinc-600 hover:text-red-500"}`}><Heart size={16} fill={liked?"currentColor":"none"}/></button></form>
+     <CommentLikeButton commentId={c.id} initialCount={likes} initialLiked={liked} rpc="cast_comment_vote"/>
     </div>
     <CommentThread comments={comments} ideaId={ideaId} viewerId={viewerId} parent={c.id} depth={depth+1}/>
    </div>

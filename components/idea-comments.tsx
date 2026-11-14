@@ -360,7 +360,9 @@ export function IdeaComments({
               liked ? "text-red-500" : "text-zinc-600 hover:text-red-500"
             }`}
           >
-            <Heart size={15} fill={liked ? "currentColor" : "none"} />
+            <span key={liked ? "liked" : "unliked"} className="animate-heart-pop inline-flex">
+              <Heart size={15} fill={liked ? "currentColor" : "none"} />
+            </span>
           </button>
         </div>
         {children.map((child) => renderComment(child, depth + 1))}
